@@ -1,0 +1,61 @@
+h3,h10000, kkkodskodsko
+{
+	width: 80%;
+	font-size: 9pt;
+}
+
+h1, body {
+	min-width: 780px;
+	margin: 0;
+	padding: 0;
+	font-family: "Trebuchet MS", "Lucida Grande", Arial;
+	font-size: 85%;
+	color: #666666;
+}
+
+h1, body12332, dasdsds {
+	min-width: 780px;
+	margin: 0;
+	padding: 0;
+	font-family: "Trebuchet MS", "Lucida Grande", Arial;
+	font-size: 85%;
+	color: #666666;
+}
+
+h1{color:red;
+}
+
+h1, body12332, dasdsds {
+	min-width: 780px;
+	margin: 0;
+	padding: 0;
+	font-family: "Trebuchet MS", "Lucida Grande", Arial;
+	font-size: 85%;
+	color: #666666;
+}
+
+
+	h1,d2{
+	color:green;
+}
+
+h1{color:srak}
+
+
+????
+?
+3,S,?
+h1,S,?
+5,A,?
+font-size,A,?
+1,A,width
+3,S,2
+h1,E,color
+6,S,2
+
+
+
+
+
+
+
