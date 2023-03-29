@@ -24,6 +24,7 @@ public:
     void removeGivenIndex(int i);
     bool valueExist(MyString value);
     int indexOfValue(MyString value);
+    void clear();
 
 
     MyString& operator[](int index);

@@ -117,3 +117,9 @@ void MyVector::resize() {
         arr = newArr;
     }
 }
+
+void MyVector::clear() {
+    delete[] arr;
+    arr = new MyString[capacity];
+    size = 0;
+}

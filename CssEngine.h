@@ -10,6 +10,12 @@ public:
     MyVector selectors;
     MyVector attributes;
     MyVector values;
+
+    void deleteData() {
+        selectors.clear();
+        attributes.clear();
+        values.clear();
+    }
 };
 
 class Node {
@@ -31,6 +37,14 @@ public:
             if (isUsed[i - 1] == 1)return i;
         }
         return -1;
+    }
+
+    int returnNumberOfActiveSections() {
+        int a = 0;
+        for (int i = 0; i < T; i++) {
+            if (isUsed[i] == 1)a++;
+        }
+        return a;
     }
 };
 
@@ -69,7 +83,59 @@ public:
         totalSections++;
     }
 
-    Block returnSpecifiedSection(int n) {
+    void removeSection(int n) {
+        //removing specified n-th section
+        Node* currentNode = returnWhereIsSection(n);
+        Block *section = returnSpecifiedSection(n);
+        int index_of_section = returnIndexInBlock(n);
+        section->deleteData();
+        totalSections--;
+        currentNode->isUsed[index_of_section] = 0;
+
+        //checking if current node is empty and remove it
+        if (currentNode->returnNumberOfActiveSections() <= 0) {
+            removeNode(currentNode);
+        }
+
+    }
+
+    void removeNode(Node* nodeToRemove) {
+        //first node
+        if (nodeToRemove->prev == nullptr) {
+            Node* temp = head;
+            head = head->next;
+            if (head != nullptr) {
+                head->prev = nullptr;
+            }
+            else {
+                tail = nullptr;
+            }
+            delete temp;
+            return;
+        }
+
+        //last node
+        if (nodeToRemove->next == nullptr) {
+            Node* temp = tail;
+            tail = tail->prev;
+            if (tail != nullptr) {
+                tail->next = nullptr;
+            }
+            else {
+                head = nullptr;
+            }
+            delete temp;
+            return;
+        }
+
+        nodeToRemove->prev->next = nodeToRemove->next;
+        nodeToRemove->next->prev = nodeToRemove->prev;
+        delete nodeToRemove;
+    }
+
+
+
+    Node* returnWhereIsSection(int n) {
         int a = 0;
         Node* tempNode = head;
         while (tempNode != nullptr) {
@@ -77,14 +143,48 @@ public:
                 if (tempNode->isUsed[j] == 1) {
                     a++;
                     if (n == a) {
-                        return tempNode->sections[j];
+                        return tempNode;
                     }
                 }
             }
             tempNode = tempNode->next;
         }
-        return Block();
+        return nullptr;
     }
+
+    int returnIndexInBlock(int n) {
+        int a = 0;
+        Node* tempNode = head;
+        while (tempNode != nullptr) {
+            for (int j = 0; j < T; j++) {
+                if (tempNode->isUsed[j] == 1) {
+                    a++;
+                    if (n == a) {
+                        return j;
+                    }
+                }
+            }
+            tempNode = tempNode->next;
+        }
+        return 0;
+    }
+
+    //Block returnSpecifiedSection(int n) {
+    //    int a = 0;
+    //    Node* tempNode = head;
+    //    while (tempNode != nullptr) {
+    //        for (int j = 0; j < T; j++) {
+    //            if (tempNode->isUsed[j] == 1) {
+    //                a++;
+    //                if (n == a) {
+    //                    return tempNode->sections[j];
+    //                }
+    //            }
+    //        }
+    //        tempNode = tempNode->next;
+    //    }
+    //    return Block();
+    //}
 
     int getNumberOfSections() const{
         return totalSections;
@@ -106,13 +206,13 @@ public:
     }
 
     int countSelectorsInSection(int n) {
-        Block section = returnSpecifiedSection(n);
-        return section.selectors.getSize();
+        Block *section = returnSpecifiedSection(n);
+        return section->selectors.getSize();
     }
 
     int countAttributesInSection(int n) {
-        Block section = returnSpecifiedSection(n);
-        return section.attributes.getSize();
+        Block *section = returnSpecifiedSection(n);
+        return section->attributes.getSize();
     }
 
     int totalOfAttribute(MyString& value) {
@@ -130,14 +230,44 @@ public:
     }
 
     bool AttributeExist(int i, MyString& attribute) {
-        Block section = returnSpecifiedSection(i);
-        return section.attributes.valueExist(attribute);
+        Block *section = returnSpecifiedSection(i);
+        return section->attributes.valueExist(attribute);
     }
 
+
+    void removeAttribute(int i, MyString& attribute) {
+        Block *section = returnSpecifiedSection(i);
+        int f = section->attributes.indexOfValue(attribute);
+        MyString value = section->values[f];
+        section->attributes.remove(attribute);
+        section->values.remove(value);
+        if (section->attributes.getSize() < 1) {
+            this->removeSection(i);
+        }
+    }
+
+    Block* returnSpecifiedSection(int n) {
+        int a = 0;
+        Node* tempNode = head;
+        while (tempNode != nullptr) {
+            for (int j = 0; j < T; j++) {
+                if (tempNode->isUsed[j] == 1) {
+                    a++;
+                    if (n == a) {
+                        return &(tempNode->sections[j]);
+                    }
+                }
+            }
+            tempNode = tempNode->next;
+        }
+        return nullptr;
+    }
+
+
     MyString returnValueOfAttribute(int i, MyString& attribute) {
-        Block section = returnSpecifiedSection(i);
-        int j = section.attributes.indexOfValue(attribute);
-        return section.values[j];
+        Block *section = returnSpecifiedSection(i);
+        int j = section->attributes.indexOfValue(attribute);
+        return section->values[j];
     }
 
     int totalOfSelector(MyString& value) {
@@ -155,8 +285,8 @@ public:
     }
 
     MyString returnSelectorInSection(int i, int j) {
-        Block section = returnSpecifiedSection(i);
-        return section.selectors[j - 1];
+        Block *section = returnSpecifiedSection(i);
+        return section->selectors[j - 1];
     }
 
     bool selectorExist(MyString& selector) {
@@ -175,7 +305,7 @@ public:
     MyString lastAttributeOfSelector(MyString& selector, MyString& attribute) {
         Node* tempNode = tail;
         while (tempNode != nullptr) {
-            for (int j = T-1; j >0; j--) {
+            for (int j = T-1; j >=0; j--) {
                 if (tempNode->isUsed[j] == 1){
                     if (tempNode->sections[j].selectors.valueExist(selector)) {
                         if (tempNode->sections[j].attributes.valueExist(attribute)) {
@@ -188,6 +318,24 @@ public:
             tempNode = tempNode->prev;
         }
         return "0";
+    }
+
+    void addAttributeToAll(MyString& attribute, MyString& value) {
+        Node* tempNode = head;
+        while (tempNode != nullptr) {
+            for (int j = T - 1; j > 0; j--) {
+                if (tempNode->isUsed[j] == 1) {
+                    if (tempNode->sections[j].attributes.valueExist(attribute)) {
+                        int f = tempNode->sections[j].attributes.indexOfValue(attribute);
+                        tempNode->sections[j].attributes.removeGivenIndex(f);
+                        tempNode->sections[j].values.removeGivenIndex(f);
+                    }
+                }
+                tempNode->sections[j].attributes.pushBack(attribute);
+                tempNode->sections[j].values.pushBack(value);
+            }
+            tempNode = tempNode->next;
+        }
     }
 };
 
@@ -284,23 +432,21 @@ public:
                 }
             }
         }
-        list.addSectionInBlock(selectors, attributes, values);
 
-
-        ////section without selectors
-        //if (selectors.getSize() != 0)list.addNode(selectors, attributes, values);
-        //else {
-        //    list.addNode(selectors, attributes, values);
-        //    handleSectionWithoutSelectors(list, selectors, attributes, values);
-        //}
+        //section without selectors
+        if (selectors.getSize() != 0)list.addSectionInBlock(selectors, attributes, values);
+        else {
+            list.addSectionInBlock(selectors, attributes, values);
+            handleSectionWithoutSelectors(list, selectors, attributes, values);
+        }
     }
 
 
-    //void handleSectionWithoutSelectors(CSSList& list, MyVector& selectors, MyVector& attributes, MyVector& values) {
-    //    for (int i = 0; i < attributes.getSize(); i++) {
-    //        list.addAttributeToAll(attributes[i], values[i]);
-    //    }
-    //}
+    void handleSectionWithoutSelectors(CSSList& list, MyVector& selectors, MyVector& attributes, MyVector& values) {
+        for (int i = 0; i < attributes.getSize(); i++) {
+            list.addAttributeToAll(attributes[i], values[i]);
+        }
+    }
 
     void ParseCommand(MyString &command, CSSList& list) {
         //pasrsing each element of command to vector
@@ -314,6 +460,7 @@ public:
             }
             tempToken += command[i];
         }
+        if (tokens.getSize() > 3) return;
         //i,S,?     z,S,?
         if (tokens.valueExist("S") && tokens.valueExist("?")) {
             if (MyString::isDigit(tokens[0])) {
@@ -359,22 +506,22 @@ public:
             return;
         }
 
-        ////i,D,*
-        //else if (tokens.valueExist("D") && tokens.valueExist("*")) {
-        //    int i = MyString::stringToInt(tokens[0]);
-        //    if (i > list.returnNumberOfSection()) return;
-        //    list.RemoveNode(i);
-        //    std::cout << command << " == " << "deleted" << std::endl;
-        //}
+        //i,D,*
+        else if (tokens.valueExist("D") && tokens.valueExist("*")) {
+            int i = MyString::stringToInt(tokens[0]);
+            if (i > list.getNumberOfSections() || i == 0) return;
+            list.removeSection(i);
+            std::cout << command << " == " << "deleted" << std::endl;
+        }
 
-        ////i,D,n
-        //else if (tokens.valueExist("D")) {
-        //    int i = MyString::stringToInt(tokens[0]);
-        //    if (i > list.returnNumberOfSection()) return;
-        //    if (!list.AttributeExist(i, tokens[2])) return;
-        //    list.removeAttribute(i,tokens[2]);
-        //    std::cout << command << " == " << "deleted" << std::endl;
-        //}
+        //i,D,n
+        else if (tokens.valueExist("D")) {
+            int i = MyString::stringToInt(tokens[0]);
+            if (i > list.getNumberOfSections() || i == 0) return;
+            if (!list.AttributeExist(i, tokens[2])) return;
+            list.removeAttribute(i,tokens[2]);
+            std::cout << command << " == " << "deleted" << std::endl;
+        }
     }
 
     void PrintNumberOfSelectorsInSection(CSSList& list, int i, MyString &command) {
@@ -432,7 +579,7 @@ public:
                             section+='}';
                             addNewSection(section, list);
                             //list.PrintAttributesAndValues();
-                            list.printAV();
+                            //list.printAV();
                             inSection = 0;
                             section = "";
                         }
