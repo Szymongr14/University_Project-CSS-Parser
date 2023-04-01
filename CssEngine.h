@@ -10,11 +10,13 @@ public:
     MyVector selectors;
     MyVector attributes;
     MyVector values;
+    int globalAttributes = 0;
 
     void deleteData() {
         selectors.clear();
         attributes.clear();
         values.clear();
+        globalAttributes = 0;
     }
 };
 
@@ -169,22 +171,6 @@ public:
         return 0;
     }
 
-    //Block returnSpecifiedSection(int n) {
-    //    int a = 0;
-    //    Node* tempNode = head;
-    //    while (tempNode != nullptr) {
-    //        for (int j = 0; j < T; j++) {
-    //            if (tempNode->isUsed[j] == 1) {
-    //                a++;
-    //                if (n == a) {
-    //                    return tempNode->sections[j];
-    //                }
-    //            }
-    //        }
-    //        tempNode = tempNode->next;
-    //    }
-    //    return Block();
-    //}
 
     int getNumberOfSections() const{
         return totalSections;
@@ -197,7 +183,6 @@ public:
                 if (tempNode->isUsed[j] == 1) {
                     for (int f = 0; f < tempNode->sections[j].attributes.getSize(); f++) {
                         std::cout << tempNode->sections[j].attributes[f] << " : " << tempNode->sections[j].values[f] << std::endl;
-                        //std::cout << tempNode->sections[j].selectors[f] << std::endl;
                     }
                 }
             }
@@ -212,7 +197,7 @@ public:
 
     int countAttributesInSection(int n) {
         Block *section = returnSpecifiedSection(n);
-        return section->attributes.getSize();
+        return (section->attributes.getSize() - section->globalAttributes);
     }
 
     int totalOfAttribute(MyString& value) {
@@ -325,14 +310,17 @@ public:
         while (tempNode != nullptr) {
             for (int j = T - 1; j > 0; j--) {
                 if (tempNode->isUsed[j] == 1) {
+                    if (!tempNode->sections[j].attributes.valueExist(attribute)) {
+                        tempNode->sections[j].globalAttributes++;
+                    }
                     if (tempNode->sections[j].attributes.valueExist(attribute)) {
                         int f = tempNode->sections[j].attributes.indexOfValue(attribute);
                         tempNode->sections[j].attributes.removeGivenIndex(f);
                         tempNode->sections[j].values.removeGivenIndex(f);
                     }
+                    tempNode->sections[j].attributes.pushBack(attribute);
+                    tempNode->sections[j].values.pushBack(value);
                 }
-                tempNode->sections[j].attributes.pushBack(attribute);
-                tempNode->sections[j].values.pushBack(value);
             }
             tempNode = tempNode->next;
         }
@@ -405,9 +393,6 @@ public:
                 selector += section[i];
             }
             else if ((section[i] != '\n' && section[i] != ' ') || (section[i] == ' ' && reading_value && first_value_flag)) {
-   /*             if (reading_selector&&section[i] != '\t') {
-                    selector += section[i];
-                }*/
                 if (reading_attribute && section[i] != '\t') {
                     attribute += section[i];
                 }
@@ -553,7 +538,7 @@ public:
         while (std::cin.get(current_char)) {
             if (current_char == '\n') {
                 if (current_line.exist(';') && !inSection) {
-                    std::cout << "globalny" << std::endl;
+                    //std::cout << "globalny" << std::endl;
                     current_line = "";
                     continue;
                 }
@@ -598,6 +583,17 @@ public:
             else {
                 if (current_char == '{') inSection = 1;
                 current_line+=current_char;
+            }
+        }
+        //checking if last command has '\n'
+        if (current_line.length() > 0) {
+            if (current_line == "?") {
+                std::cout << "? == " << list.getNumberOfSections() << std::endl;
+                current_line = "";
+            }
+            else {
+                ParseCommand(current_line, list);
+
             }
         }
     }
