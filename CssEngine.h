@@ -98,7 +98,6 @@ public:
         if (currentNode->returnNumberOfActiveSections() <= 0) {
             removeNode(currentNode);
         }
-
     }
 
     void removeNode(Node* nodeToRemove) {
@@ -434,6 +433,10 @@ public:
     }
 
     void ParseCommand(MyString &command, CSSList& list) {
+        if (command == "?") {
+            std::cout << "? == " << list.getNumberOfSections() << std::endl;
+            return;
+        }
         //pasrsing each element of command to vector
         MyVector tokens;
         MyString tempToken;
@@ -524,7 +527,6 @@ public:
     }
 
 
-
     void init() {
         CSSList list;
         char current_char;
@@ -532,16 +534,9 @@ public:
         MyString section = "";
         MyString code = "";
         bool analyzing_code = true;
-        bool inSection = 0;
-        bool sectionBreak = false;
 
         while (std::cin.get(current_char)) {
             if (current_char == '\n') {
-                if (current_line.exist(';') && !inSection) {
-                    //std::cout << "globalny" << std::endl;
-                    current_line = "";
-                    continue;
-                }
                 if (current_line == "\n") continue;
                 if (current_line == (MyString)"????") {
                     analyzing_code = false;
@@ -563,38 +558,22 @@ public:
                         else {
                             section+='}';
                             addNewSection(section, list);
-                            //list.PrintAttributesAndValues();
-                            //list.printAV();
-                            inSection = 0;
                             section = "";
                         }
                     }
                 }
                 else {
-                    if (current_line == "?") {
-                        std::cout << "? == " << list.getNumberOfSections() << std::endl;
-                        current_line = "";
-                        continue;
-                    }
                     ParseCommand(current_line, list);
                 }
                 current_line = "";
             }
             else {
-                if (current_char == '{') inSection = 1;
                 current_line+=current_char;
             }
         }
         //checking if last command has '\n'
         if (current_line.length() > 0) {
-            if (current_line == "?") {
-                std::cout << "? == " << list.getNumberOfSections() << std::endl;
-                current_line = "";
-            }
-            else {
-                ParseCommand(current_line, list);
-
-            }
+            ParseCommand(current_line, list);
         }
     }
 };
