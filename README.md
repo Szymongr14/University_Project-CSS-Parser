@@ -10,8 +10,8 @@ The main goal of this project was to create a simple CSS processing engine. The 
 
 ## Sample input
 
-![Zrzut ekranu 2023-05-13 153508](https://github.com/Szymongr14/CssEngineV2/assets/53967196/3ba01de4-04d8-45ca-a2ec-585a1f05afd5)
+![Zrzut ekranu 2023-05-13 153508](https://github.com/Szymongr14/Cpp/assets/53967196/298f4748-54fd-470a-9cc8-66efc9c0cb77)
 
 ## Output
 
-![Zrzut ekranu 2023-05-13 154221](https://github.com/Szymongr14/CssEngineV2/assets/53967196/bbdc1ac2-33ed-45cb-9d22-2f14d438d474)
+![Zrzut ekranu 2023-05-13 154221](https://github.com/Szymongr14/Cpp/assets/53967196/1fd3aa65-0823-4e97-ada2-11fa9a8e3040)
